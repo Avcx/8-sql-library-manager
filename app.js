@@ -1,6 +1,7 @@
 var createError = require('http-errors');
 var express = require('express');
 var path = require('path');
+var pug = require('pug');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 
