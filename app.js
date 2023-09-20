@@ -1,7 +1,7 @@
 var createError = require('http-errors');
 var express = require('express');
+
 var path = require('path');
-var pug = require('pug');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 
@@ -9,6 +9,7 @@ var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 
 var app = express();
+var db = require('./models').sequelize;
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -38,5 +39,17 @@ app.use(function(err, req, res, next) {
   res.status(err.status || 500);
   res.render('error');
 });
+
+const run = (async() => {
+  try {
+  await db.authenticate();
+  await db.sync();
+  console.log('Connection has been established successfully.');
+} catch (error) {
+  console.error('Unable to connect to the database:', error);
+}
+})
+
+run();
 
 module.exports = app;
