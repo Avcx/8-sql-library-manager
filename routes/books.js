@@ -27,7 +27,7 @@ router.get("/new", (req, res, next) => {
 });
 
 router.post(
-  "/",
+  "/new",
   asyncHandler(async (req, res, next) => {
     let book;
     try {
@@ -41,6 +41,44 @@ router.post(
           book,
           errors: error.errors,
           title: "New Book",
+        });
+      } else {
+        throw error; // error caught in the asyncHandler's catch block
+      }
+    }
+  })
+);
+
+router.get(
+  "/:id",
+  asyncHandler(async (req, res, next) => {
+    const book = await Book.findByPk(req.params.id);
+    res.render("update-book", { book });
+  })
+);
+
+router.post(
+  "/:id",
+  asyncHandler(async (req, res, next) => {
+    let book;
+    console.log;
+    try {
+      book = await Book.findByPk(req.params.id);
+      if (book) {
+        await book.update(req.body);
+        res.redirect("/books/");
+      } else {
+        res.sendStatus(404);
+      }
+    } catch (error) {
+      console.error(error);
+      if (error.name === "SequelizeValidationError") {
+        // checking the error
+        book = await Book.build(req.body);
+        res.render("update-book", {
+          book,
+          errors: error.errors,
+          title: `Update Book: ${book.title}`,
         });
       } else {
         throw error; // error caught in the asyncHandler's catch block

@@ -1,7 +1,7 @@
 form(action="/books", method="post")
    p 
       label(for="title") Title
-      input(type="text", name="title", id="title")
+      input(type="text", name="title", id="title", value=`${book.title}`)
    p 
       label(for="author") Author
       input(type="text", name="author", id="author")
