@@ -15,7 +15,7 @@ function asyncHandler(cb) {
 router.get(
   "/",
   asyncHandler(async (req, res, next) => {
-    const books = await Book.findAll();
+    const books = await Book.findAll({ order: [["year", "DESC"]] });
     res.render("index", { title: "Library Database", books });
   })
 );
@@ -27,7 +27,7 @@ router.get("/new", (req, res, next) => {
 });
 
 router.post(
-  "/new",
+  "/",
   asyncHandler(async (req, res, next) => {
     let book;
     try {
@@ -83,6 +83,19 @@ router.post(
       } else {
         throw error; // error caught in the asyncHandler's catch block
       }
+    }
+  })
+);
+
+router.post(
+  "/:id/delete",
+  asyncHandler(async (req, res, next) => {
+    const book = await Book.findByPk(req.params.id);
+    if (book) {
+      await book.destroy();
+      res.redirect("/books/");
+    } else {
+      res.sendStatus(404);
     }
   })
 );
