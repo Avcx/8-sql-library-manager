@@ -36,9 +36,15 @@ app.use(function (err, req, res, next) {
   res.locals.error = req.app.get("env") === "development" ? err : {};
 
   // render the error page
-  console.log(err);
   res.status(err.status || 500);
-  res.render("error", { error: err });
+  err.message = err.message || "An unexpected Error has occured!";
+  if (err.status === 404) {
+    console.error(err);
+    res.render("page-not-found", { error: err });
+  } else {
+    console.error(err);
+    res.render("error", { error: err });
+  }
 });
 
 // check database connection

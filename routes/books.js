@@ -52,13 +52,15 @@ router.post(
 
 router.get(
   "/:id",
-  asyncHandler(async (req, res, next) => {
-    currentId = currentId || req.params.id;
+  asyncHandler(async (req, res, next, err) => {
+    currentId = req.params.id;
     const book = await Book.findByPk(currentId);
     if (book) {
       res.render("update-book", { book });
     } else {
-      res.sendStatus(404);
+      const error = new Error(`Book id: '${currentId}' does not exist!`);
+      error.status = 404;
+      throw error;
     }
   })
 );
@@ -71,6 +73,7 @@ router.post(
       book = await Book.findByPk(currentId);
       if (book) {
         await book.update(req.body);
+        currentId = null;
         res.redirect("/books");
       } else {
         res.sendStatus(404);
