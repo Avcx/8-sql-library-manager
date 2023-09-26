@@ -14,6 +14,12 @@ function asyncHandler(cb) {
   };
 }
 
+function create404Error() {
+  const error = new Error(`Book id: '${currentId}' does not exist!`);
+  error.status = 404;
+  throw error;
+}
+
 router.get(
   "/",
   asyncHandler(async (req, res, next) => {
@@ -29,7 +35,7 @@ router.get("/new", (req, res, next) => {
 });
 
 router.post(
-  "/",
+  "/new",
   asyncHandler(async (req, res, next) => {
     let book;
     try {
@@ -58,9 +64,7 @@ router.get(
     if (book) {
       res.render("update-book", { book });
     } else {
-      const error = new Error(`Book id: '${currentId}' does not exist!`);
-      error.status = 404;
-      throw error;
+      create404Error();
     }
   })
 );
@@ -76,7 +80,7 @@ router.post(
         currentId = null;
         res.redirect("/books");
       } else {
-        res.sendStatus(404);
+        create404Error();
       }
     } catch (error) {
       console.error(error.errors);
@@ -99,13 +103,12 @@ router.post(
   asyncHandler(async (req, res, next) => {
     currentId = req.params.id;
     const book = await Book.findByPk(currentId);
+
     if (book) {
       await book.destroy();
       res.redirect("/books/");
     } else {
-      const error = new Error(`Book id: '${currentId}' does not exist!`);
-      error.status = 404;
-      throw error;
+      create404Error();
     }
   })
 );
