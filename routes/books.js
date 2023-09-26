@@ -62,7 +62,7 @@ router.get(
     currentId = req.params.id;
     const book = await Book.findByPk(currentId);
     if (book) {
-      res.render("update-book", { book });
+      res.render("update-book", { book, title: `Update Book: ${book.title}` });
     } else {
       create404Error();
     }
@@ -89,7 +89,7 @@ router.post(
         res.render("update-book", {
           book,
           errors: error.errors,
-          title: `Update Book`,
+          title: `Update Book: ${book.title}`,
         });
       } else {
         throw error; // error caught in the asyncHandler's catch block
