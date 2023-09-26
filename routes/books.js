@@ -2,12 +2,14 @@ var express = require("express");
 var { Book } = require("../models");
 var router = express.Router();
 
+let currentId;
+
 function asyncHandler(cb) {
   return async (req, res, next) => {
     try {
       await cb(req, res, next);
     } catch (err) {
-      res.render("error", { error: err });
+      next(err);
     }
   };
 }
@@ -35,7 +37,6 @@ router.post(
       res.redirect("/books");
     } catch (error) {
       if (error.name === "SequelizeValidationError") {
-        // checking the error
         book = await Book.build(req.body);
         res.render("new-book", {
           book,
@@ -43,7 +44,7 @@ router.post(
           title: "New Book",
         });
       } else {
-        throw error; // error caught in the asyncHandler's catch block
+        throw error;
       }
     }
   })
@@ -52,8 +53,13 @@ router.post(
 router.get(
   "/:id",
   asyncHandler(async (req, res, next) => {
-    const book = await Book.findByPk(req.params.id);
-    res.render("update-book", { book });
+    currentId = currentId || req.params.id;
+    const book = await Book.findByPk(currentId);
+    if (book) {
+      res.render("update-book", { book });
+    } else {
+      res.sendStatus(404);
+    }
   })
 );
 
@@ -61,24 +67,22 @@ router.post(
   "/:id",
   asyncHandler(async (req, res, next) => {
     let book;
-    console.log;
     try {
-      book = await Book.findByPk(req.params.id);
+      book = await Book.findByPk(currentId);
       if (book) {
         await book.update(req.body);
-        res.redirect("/books/");
+        res.redirect("/books");
       } else {
         res.sendStatus(404);
       }
     } catch (error) {
-      console.error(error);
+      console.error(error.errors);
       if (error.name === "SequelizeValidationError") {
         // checking the error
-        book = await Book.build(req.body);
         res.render("update-book", {
           book,
           errors: error.errors,
-          title: `Update Book: ${book.title}`,
+          title: `Update Book`,
         });
       } else {
         throw error; // error caught in the asyncHandler's catch block
