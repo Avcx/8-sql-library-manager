@@ -97,12 +97,15 @@ router.post(
 router.post(
   "/:id/delete",
   asyncHandler(async (req, res, next) => {
-    const book = await Book.findByPk(req.params.id);
+    currentId = req.params.id;
+    const book = await Book.findByPk(currentId);
     if (book) {
       await book.destroy();
       res.redirect("/books/");
     } else {
-      res.sendStatus(404);
+      const error = new Error(`Book id: '${currentId}' does not exist!`);
+      error.status = 404;
+      throw error;
     }
   })
 );
