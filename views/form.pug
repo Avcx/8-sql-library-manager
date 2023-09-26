@@ -1,17 +1,17 @@
-form(action="/books", method="post")
+form(action="/books/new", method="post")
    p 
-      label(for="title") Title
+      label(for="title") Title: 
       input(type="text", name="title", id="title")
    p 
-      label(for="author") Author
+      label(for="author") Author: 
       input(type="text", name="author", id="author")
    p 
-      label(for="genre") Genre
+      label(for="genre") Genre: 
       input(type="text", name="genre", id="genre")
    p 
-      label(for="year") Year
+      label(for="year") Year: 
       input(type="text", name="year", id="year")
    p 
-      input(type="submit", value="Create New Book")
+      input(class="submit", type="submit", value="Create New Book")
    p
-      a(className="buttom", href="/books") Cancel
+      a(class="buttom", href="/books") Cancel
