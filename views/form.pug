@@ -1,4 +1,9 @@
 form(action="/books/new", method="post")
+   if errors
+      h2(class="error") Ooooops!
+      ul(class="error")
+         for error in errors 
+            li= error.message
    p 
       label(for="title") Title: 
       input(type="text", name="title", id="title")
