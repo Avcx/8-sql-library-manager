@@ -1,0 +1,5 @@
+node_modules
+.DS_Store
+mockups
+example-markup
+migrations/20230918223024-create-book.js
