@@ -4,6 +4,9 @@ block content
     h1 Books
     p
         a(href="/books/new") Create New Book
+    form(action="/books/", method="get") 
+        input(type="search" name="query" id="query" placeholder="Search...")
+    br
     table
         thead
             tr
@@ -18,4 +21,14 @@ block content
                             a(href= `/books/${book.id}`) #{book.title}
                         td #{book.author} 
                         td #{book.genre} 
-                        td #{book.year}
+                        td #{book.year} 
+    nav(class="nav-buttons-container")
+        form(action="books", method="get")
+            - var p = 1;
+            ul(class="nav-buttons-list")
+                while p <= pages 
+                    li(class="nav-button")
+                        if p == currentPage
+                            button(class="active" disabled="true")= p++
+                        else
+                            button(name="page" value=p)= p++

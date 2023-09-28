@@ -37,6 +37,7 @@ app.use(function (err, req, res, next) {
 
   // render the error page
   res.status(err.status || 500);
+  err.status = err.status || 500;
   err.message = err.message || "An unexpected Error has occured!";
   if (err.status === 404) {
     console.error(err);

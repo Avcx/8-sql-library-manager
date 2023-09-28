@@ -3,6 +3,8 @@ var { Book } = require("../models");
 var router = express.Router();
 
 let currentId;
+let currentPage = 1;
+const itemsPerPage = 12;
 
 function asyncHandler(cb) {
   return async (req, res, next) => {
@@ -23,8 +25,20 @@ function create404Error() {
 router.get(
   "/",
   asyncHandler(async (req, res, next) => {
-    const books = await Book.findAll({ order: [["year", "DESC"]] });
-    res.render("index", { title: "Library Database", books });
+    // const books = await Book.findAll();
+    currentPage = req.query.page || currentPage;
+    const books = await Book.findAndCountAll({
+      offset: (currentPage - 1) * itemsPerPage,
+      limit: itemsPerPage,
+    });
+    const numOfPages = Math.ceil(books.count / itemsPerPage);
+
+    res.render("index", {
+      title: "Library Database",
+      books: books.rows,
+      pages: numOfPages,
+      currentPage: currentPage,
+    });
   })
 );
 
