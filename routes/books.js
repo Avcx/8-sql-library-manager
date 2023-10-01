@@ -1,9 +1,11 @@
 var express = require("express");
 var { Book } = require("../models");
 var router = express.Router();
+var { Op } = require("sequelize");
 
 let currentId;
 let currentPage = 1;
+let searchTerm;
 const itemsPerPage = 12;
 
 function asyncHandler(cb) {
@@ -25,19 +27,110 @@ function create404Error() {
 router.get(
   "/",
   asyncHandler(async (req, res, next) => {
-    // const books = await Book.findAll();
-    currentPage = req.query.page || currentPage;
+    // const books = await Book.findAll()
+    req.query.home
+      ? (currentPage = 1)
+      : (currentPage = req.query.page || currentPage);
     const books = await Book.findAndCountAll({
       offset: (currentPage - 1) * itemsPerPage,
       limit: itemsPerPage,
     });
     const numOfPages = Math.ceil(books.count / itemsPerPage);
 
+    if (!books.count) {
+      const err = new Error(`No books exist!`);
+      res.render("page-not-found", {
+        error: err,
+      });
+    } else {
+      res.render("index", {
+        title: "Library Database",
+        books: books.rows,
+        pages: numOfPages,
+        currentPage,
+      });
+    }
+  })
+);
+
+router.post(
+  "/search",
+  asyncHandler(async (req, res, next) => {
+    console.log(req.body);
+    searchTerm = req.body.query;
+    currentPage = 1;
+    searchTerm
+      ? (currentPage = 1)
+      : (currentPage = parseInt(req.query.page) || currentPage);
+    const books = await Book.findAndCountAll({
+      where: {
+        [Op.or]: {
+          title: {
+            [Op.substring]: searchTerm,
+          },
+          author: {
+            [Op.substring]: searchTerm,
+          },
+          genre: {
+            [Op.substring]: searchTerm,
+          },
+          year: {
+            [Op.substring]: searchTerm,
+          },
+        },
+      },
+      offset: (currentPage - 1) * itemsPerPage,
+      limit: itemsPerPage,
+    });
+
+    const numOfPages = Math.ceil(books.count / itemsPerPage);
+
     res.render("index", {
-      title: "Library Database",
       books: books.rows,
+      title: `Results for: ${searchTerm}`,
       pages: numOfPages,
-      currentPage: currentPage,
+      currentPage,
+      searchQ: true,
+      searchTerm,
+    });
+  })
+);
+
+router.get(
+  "/search",
+  asyncHandler(async (req, res, next) => {
+    currentPage = req.query.page || currentPage;
+
+    const books = await Book.findAndCountAll({
+      where: {
+        [Op.or]: {
+          title: {
+            [Op.substring]: searchTerm,
+          },
+          author: {
+            [Op.substring]: searchTerm,
+          },
+          genre: {
+            [Op.substring]: searchTerm,
+          },
+          year: {
+            [Op.substring]: searchTerm,
+          },
+        },
+      },
+      offset: (currentPage - 1) * itemsPerPage,
+      limit: itemsPerPage,
+    });
+
+    const numOfPages = Math.ceil(books.count / itemsPerPage);
+
+    res.render("index", {
+      books: books.rows,
+      title: `Results for: ${searchTerm}`,
+      pages: numOfPages,
+      currentPage,
+      searchQ: true,
+      searchTerm,
     });
   })
 );
@@ -120,7 +213,7 @@ router.post(
 
     if (book) {
       await book.destroy();
-      res.redirect("/books/");
+      res.redirect("/books");
     } else {
       create404Error();
     }

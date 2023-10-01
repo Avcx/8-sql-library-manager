@@ -2,9 +2,16 @@ extends layout
 
 block content
     h1 Books
-    p
-        a(href="/books/new") Create New Book
-    form(action="/books/", method="get") 
+    if searchQ
+        h2=`Searching for... ${searchTerm}`
+        p 
+            a(href="/books?home=true") Show All Books
+    else
+        p
+            a(href="/books/new") Create New Book
+
+    form(action="/books/search", method="post")
+
         input(type="search" name="query" id="query" placeholder="Search...")
     br
     table
@@ -22,13 +29,25 @@ block content
                         td #{book.author} 
                         td #{book.genre} 
                         td #{book.year} 
-    nav(class="nav-buttons-container")
-        form(action="books", method="get")
-            - var p = 1;
-            ul(class="nav-buttons-list")
-                while p <= pages 
-                    li(class="nav-button")
-                        if p == currentPage
-                            button(class="active" disabled="true")= p++
-                        else
-                            button(name="page" value=p)= p++
+    if searchQ
+        nav(class="nav-buttons-container")
+            form(action="/books/search", method="get")
+                - var p = 1;
+                ul(class="nav-buttons-list")
+                    while p <= pages 
+                        li(class="nav-button")
+                            if p == currentPage
+                                button(class="active" disabled="true")= p++
+                            else
+                                button(name="page" value=p)= p++
+    else                    
+        nav(class="nav-buttons-container")
+            form(action="books", method="get")
+                - var p = 1;
+                ul(class="nav-buttons-list")
+                    while p <= pages 
+                        li(class="nav-button")
+                            if p == currentPage
+                                button(class="active" disabled="true")= p++
+                            else
+                                button(name="page" value=p)= p++
