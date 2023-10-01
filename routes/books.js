@@ -59,9 +59,6 @@ router.post(
     console.log(req.body);
     searchTerm = req.body.query;
     currentPage = 1;
-    searchTerm
-      ? (currentPage = 1)
-      : (currentPage = parseInt(req.query.page) || currentPage);
     const books = await Book.findAndCountAll({
       where: {
         [Op.or]: {
@@ -82,17 +79,23 @@ router.post(
       offset: (currentPage - 1) * itemsPerPage,
       limit: itemsPerPage,
     });
+    if (!books.count) {
+      const err = new Error(`No results for: ${searchTerm}`);
+      res.render("page-not-found", {
+        error: err,
+      });
+    } else {
+      const numOfPages = Math.ceil(books.count / itemsPerPage);
 
-    const numOfPages = Math.ceil(books.count / itemsPerPage);
-
-    res.render("index", {
-      books: books.rows,
-      title: `Results for: ${searchTerm}`,
-      pages: numOfPages,
-      currentPage,
-      searchQ: true,
-      searchTerm,
-    });
+      res.render("index", {
+        books: books.rows,
+        title: `Results for: ${searchTerm}`,
+        pages: numOfPages,
+        currentPage,
+        searchQ: true,
+        searchTerm,
+      });
+    }
   })
 );
 
