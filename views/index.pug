@@ -14,21 +14,25 @@ block content
 
         input(type="search" name="query" id="query" placeholder="Search...")
     br
-    table
-        thead
-            tr
-                th Title
-                th Author
-                th Genre 
-                th Year 
-        tbody       
-            each book in books
-                    tr
-                        td 
-                            a(href= `/books/${book.id}`) #{book.title}
-                        td #{book.author} 
-                        td #{book.genre} 
-                        td #{book.year} 
+    if books.length
+        table
+            thead
+                tr
+                    th Title
+                    th Author
+                    th Genre 
+                    th Year 
+            tbody       
+                each book in books
+                        tr
+                            td 
+                                a(href= `/books/${book.id}`) #{book.title}
+                            td #{book.author} 
+                            td #{book.genre} 
+                            td #{book.year}
+    else
+        div
+            h3 No results found!
     if searchQ
         nav(class="nav-buttons-container")
             form(action="/books/search", method="get")

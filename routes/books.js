@@ -106,23 +106,16 @@ router.post(
   asyncHandler(async (req, res, next) => {
     currentPage = 1;
     const books = await search(req.body.query);
-    if (!books.count) {
-      const err = new Error(`No results for: ${searchTerm}`);
-      res.render("page-not-found", {
-        error: err,
-      });
-    } else {
-      const numOfPages = Math.ceil(books.count / itemsPerPage);
+    const numOfPages = Math.ceil(books.count / itemsPerPage);
 
-      res.render("index", {
-        books: books.rows,
-        title: `Results for: ${searchTerm}`,
-        pages: numOfPages,
-        currentPage,
-        searchQ: true,
-        searchTerm,
-      });
-    }
+    res.render("index", {
+      books: books.rows,
+      title: `Results for: ${searchTerm}`,
+      pages: numOfPages,
+      currentPage,
+      searchQ: true,
+      searchTerm,
+    });
   })
 );
 
