@@ -3,10 +3,17 @@ var { Book } = require("../models");
 var router = express.Router();
 var { Op } = require("sequelize");
 
+// Variables
 let currentId;
 let currentPage = 1;
 let searchTerm;
 const itemsPerPage = 12;
+
+/**
+ * Used to try/catch async route functions.
+ * @param {Function} cb - An async callback function to be ran.
+ * @returns Promise
+ */
 
 function asyncHandler(cb) {
   return async (req, res, next) => {
@@ -18,11 +25,48 @@ function asyncHandler(cb) {
   };
 }
 
-function create404Error() {
-  const error = new Error(`Book id: '${currentId}' does not exist!`);
+/**
+ * Used to query the database.
+ * @returns an Object containing database query results.
+ */
+async function search(newTerm) {
+  newTerm ? (searchTerm = newTerm) : (searchTerm = searchTerm);
+  return await Book.findAndCountAll({
+    where: {
+      [Op.or]: {
+        title: {
+          [Op.substring]: searchTerm,
+        },
+        author: {
+          [Op.substring]: searchTerm,
+        },
+        genre: {
+          [Op.substring]: searchTerm,
+        },
+        year: {
+          [Op.substring]: searchTerm,
+        },
+      },
+    },
+    offset: (currentPage - 1) * itemsPerPage,
+    limit: itemsPerPage,
+  });
+}
+
+/**
+ * Creates a 404 error with a custom message.
+ * @param {String} msg
+ */
+
+function create404Error(msg = `Book id: '${currentId}' does not exist!`) {
+  const error = new Error(msg);
   error.status = 404;
   throw error;
 }
+
+/* GET ROUTE '/'
+ * Default get route for '/books'
+ * Loades all books from database */
 
 router.get(
   "/",
@@ -53,32 +97,15 @@ router.get(
   })
 );
 
+/* POST ROUTE '/search'
+ * Queries the database for user posted 'searchTerm'
+ * */
+
 router.post(
   "/search",
   asyncHandler(async (req, res, next) => {
-    console.log(req.body);
-    searchTerm = req.body.query;
     currentPage = 1;
-    const books = await Book.findAndCountAll({
-      where: {
-        [Op.or]: {
-          title: {
-            [Op.substring]: searchTerm,
-          },
-          author: {
-            [Op.substring]: searchTerm,
-          },
-          genre: {
-            [Op.substring]: searchTerm,
-          },
-          year: {
-            [Op.substring]: searchTerm,
-          },
-        },
-      },
-      offset: (currentPage - 1) * itemsPerPage,
-      limit: itemsPerPage,
-    });
+    const books = await search(req.body.query);
     if (!books.count) {
       const err = new Error(`No results for: ${searchTerm}`);
       res.render("page-not-found", {
@@ -99,31 +126,16 @@ router.post(
   })
 );
 
+/* GET ROUTE '/search'
+ * Displays results from database search.
+ */
+
 router.get(
   "/search",
   asyncHandler(async (req, res, next) => {
     currentPage = req.query.page || currentPage;
 
-    const books = await Book.findAndCountAll({
-      where: {
-        [Op.or]: {
-          title: {
-            [Op.substring]: searchTerm,
-          },
-          author: {
-            [Op.substring]: searchTerm,
-          },
-          genre: {
-            [Op.substring]: searchTerm,
-          },
-          year: {
-            [Op.substring]: searchTerm,
-          },
-        },
-      },
-      offset: (currentPage - 1) * itemsPerPage,
-      limit: itemsPerPage,
-    });
+    const books = await search();
 
     const numOfPages = Math.ceil(books.count / itemsPerPage);
 
@@ -138,11 +150,18 @@ router.get(
   })
 );
 
-// 'get' route to open the 'new book' form
+/* GET ROUTE '/new'
+ * Loades 'new-book' page
+ */
 
 router.get("/new", (req, res, next) => {
   res.render("new-book", { title: "New Book" });
 });
+
+/* POST ROUTE '/new'
+ * Attempts to insert a new database entry with user entered data.
+ * If entered wrong, it displays errors from the validator.
+ */
 
 router.post(
   "/new",
@@ -166,6 +185,11 @@ router.post(
   })
 );
 
+/* GET ROUTE '/:id'
+ * Loades information from the selected book
+ * and gets on the page ready to edit.
+ */
+
 router.get(
   "/:id",
   asyncHandler(async (req, res, next, err) => {
@@ -178,6 +202,10 @@ router.get(
     }
   })
 );
+
+/* POST ROUTE '/:id'
+ * Updates data for the currently selectd book.
+ */
 
 router.post(
   "/:id",
@@ -207,6 +235,10 @@ router.post(
     }
   })
 );
+
+/* POST ROUTE '/:id/delete'
+ * Deletes the currently selected book.
+ */
 
 router.post(
   "/:id/delete",
