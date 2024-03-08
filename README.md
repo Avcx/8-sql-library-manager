@@ -2,6 +2,7 @@
 
 This is an app for organizing a library's database of books.
 It allows the user to remove books, add books, and change information about them.
+
 The user can also search by Title, Authour, Year or Genre.
 This app uses Express.js with the pug templating engine for functionality.
 
