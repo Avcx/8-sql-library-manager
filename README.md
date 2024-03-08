@@ -26,8 +26,9 @@ This app uses Express.js with the pug templating engine for functionality.
    npm i
    ```
 
- 4.  This will install Express along with the other required dependencies.
-   After these install, run:
+   This will install Express along with the other required dependencies.
+
+4. After these install, run:
 
    ``` zsh
    npm start
