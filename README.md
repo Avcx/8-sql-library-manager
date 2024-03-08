@@ -26,11 +26,11 @@ This app uses Express.js with the pug templating engine for functionality.
    npm i
    ```
 
-   This will install Express along with the other required dependencies.
+ 4.  This will install Express along with the other required dependencies.
    After these install, run:
 
    ``` zsh
    npm start
    ```
 
-4. The dev server will launch allowing the project to be viewed in a browser at: `localhost:3000`
+5. The dev server will launch allowing the project to be viewed in a browser at: `localhost:3000`
