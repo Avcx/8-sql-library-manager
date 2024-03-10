@@ -1,6 +1,7 @@
 {
   "name": "sql-library-manager-v1",
-  "version": "0.0.0",
+  "homepage": "sql-library-app.up.railway.app",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
     "start": "node ./bin/www"
